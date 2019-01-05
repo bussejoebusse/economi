@@ -40,7 +40,7 @@ get_ons <- function(series, dataset){
                     dataset = dataset,
                     date = lubridate::ymd(paste(date, "01", sep = " ")),
                     value = as.numeric(value)) %>%
-      dplyr::select(date, interval, series, dataset, value)
+      dplyr::select(date, series, dataset, value)
 
     df
   }
