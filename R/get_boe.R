@@ -16,7 +16,7 @@
 get_boe <- function(series, from = as.Date("1975-01-01"), to = Sys.Date()){
   
   if(class(from) != "Date" | class(to) != "Date")
-    stop("to and from must be dates")
+    stop("to and from must be dates", call. = FALSE)
   
   url <- paste0("http://www.bankofengland.co.uk/boeapps/iadb/fromshowcolumns.asp?csv.x=yes", 
                 "&Datefrom=", format.Date(from, "%d/%b/%Y"),
@@ -29,7 +29,7 @@ get_boe <- function(series, from = as.Date("1975-01-01"), to = Sys.Date()){
   utils::download.file(url, destfile = temp, quiet = T)
   
   if(ncol(suppressMessages(suppressWarnings(readr::read_csv(temp)))) <= 1)
-    stop("unkwown series")
+    stop("unkwown series", call. = FALSE)
   
   output <- readr::read_csv(temp, col_types = readr::cols()) %>% 
     janitor::clean_names() %>% 

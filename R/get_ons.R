@@ -14,7 +14,6 @@
 
 get_ons <- function(series, dataset){
 
-
   get_data <- function(series){
 
     id <- tolower(series)
@@ -29,7 +28,7 @@ get_ons <- function(series, dataset){
     request <- httr::GET(url)
 
     if(request$status_code == 404)
-      stop(paste("Request Error: check ID and Dataset"))
+      stop("unknown series or dataset", call. = FALSE)
 
 
 
