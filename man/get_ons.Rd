@@ -2,10 +2,21 @@
 % Please edit documentation in R/get_ons.R
 \name{get_ons}
 \alias{get_ons}
-\title{A function to access ons timeseries data}
+\title{Fetch ONS timeseries data}
 \usage{
-get_ons(id, dataset)
+get_ons(series, dataset)
+}
+\arguments{
+\item{series}{a vector of ONS timeseries codes}
+
+\item{dataset}{the name of the ONS dataset which the timeseries codes belong to}
 }
 \description{
-This data uses the ons api to access ons time series data
+This function fetches data from the Office for National Statistics (ONS) Time Series Explorer, see \url{https://www.ons.gov.uk/timeseriestool}
+}
+\examples{
+\dontrun{
+get_ons("KA46", "EMP")
+get_ons(c("KA46", "KA4O", "KA4R"), "EMP")
+}
 }
