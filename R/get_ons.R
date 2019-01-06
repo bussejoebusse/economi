@@ -16,13 +16,10 @@ get_ons <- function(series, dataset){
 
   get_data <- function(series){
 
-    series <- tolower(series)
-    dataset <- tolower(dataset)
-
     url <- paste0("https://api.ons.gov.uk/dataset/",
-                  dataset,
+                  tolower(dataset),
                   "/timeseries/" ,
-                  series,
+                  tolower(series),
                   "/data")
 
     request <- httr::GET(url)
@@ -37,8 +34,8 @@ get_ons <- function(series, dataset){
     tidy_data <- function(data){
 
       df <- data  %>%
-        dplyr::mutate(series = series,
-                      dataset = dataset,
+        dplyr::mutate(series = toupper(series),
+                      dataset = toupper(dataset),
                       value = as.numeric(value)) %>%
         dplyr::select(date, series, dataset, value)
 
