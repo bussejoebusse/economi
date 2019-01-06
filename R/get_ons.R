@@ -16,7 +16,7 @@ get_ons <- function(series, dataset){
 
   get_data <- function(series){
 
-    id <- tolower(series)
+    series <- tolower(series)
     dataset <- tolower(dataset)
 
     url <- paste0("https://api.ons.gov.uk/dataset/",
@@ -30,19 +30,38 @@ get_ons <- function(series, dataset){
     if(request$status_code == 404)
       stop("unknown series or dataset", call. = FALSE)
 
+    raw <- httr::content(httr::GET(url), "text", encoding = "UTF-8")
 
+    parsed <- jsonlite::fromJSON(raw)
 
-    raw <- httr::content(request, "text", encoding = "UTF-8") %>%
-      jsonlite::fromJSON()
+    tidy_data <- function(data){
 
-    df <- raw$months  %>%
-      dplyr::mutate(series = series,
-                    dataset = dataset,
-                    date = lubridate::ymd(paste(date, "01", sep = " ")),
-                    value = as.numeric(value)) %>%
-      dplyr::select(date, series, dataset, value)
+      df <- data  %>%
+        dplyr::mutate(series = series,
+                      dataset = dataset,
+                      value = as.numeric(value)) %>%
+        dplyr::select(date, series, dataset, value)
 
-    df
+    }
+
+    if(length(parsed$months > 0)){
+
+    tidy <- tidy_data(parsed$months)  %>%
+      dplyr::mutate(date = lubridate::ymd(paste(date, "01", sep = " ")))
+
+    }else
+
+      if(length(parsed$quarters > 0)){
+
+        tidy <- tidy_data(parsed$quarters) %>%
+          dplyr::mutate(date = lubridate::yq(date))
+
+      }else
+
+        tidy <- tidy_data(parsed$years) %>%
+          dplyr::mutate(date = lubridate::ymd(paste0(date, "01", "01")))
+
+    tidy
   }
 
   output <- purrr::map_dfr(series, get_data)
