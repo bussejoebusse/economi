@@ -4,19 +4,18 @@
 \alias{get_boe_correlation}
 \title{Calculate correlation between currency movements in BoE data}
 \usage{
-get_boe_correlation()
+get_boe_correlation(series, steps)
 }
 \arguments{
-\item{date}{date value, when the forwards are from, default is today's date}
+\item{series}{a vector of BoE currency codes}
 
-\item{three_point}{logical value, whether or not forwards should be presented as three-point estimate (minimum, most likely and maximum value)}
+\item{steps}{an integer value detailing the number of different correlation intervals to consider}
 }
 \description{
 This function calculates the correlation between currency movements in BoE data
 }
 \examples{
 \dontrun{
-get_usd_forward(three_point = FALSE))
-get_usd_forward(date = as.Date("2005-01-01"))
+get_boe_correlation("xumauss", 12))
 }
 }
