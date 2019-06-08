@@ -24,7 +24,12 @@ get_boe <- function(series, from = as.Date("1975-01-01"), to = Sys.Date()){
                 "&SeriesCodes=", paste(toupper(series), collapse = ","),
                 "&CSVF=CN&UsingCodes=Y&VPD=Y&VFD=N")
 
-  output <- readr::read_csv(url) %>%
+  raw <- suppressWarnings(suppressMessages(readr::read_csv(url)))
+
+  if(ncol(raw) <= 1)
+    stop("unknown series", call. = FALSE)
+
+  output <- raw %>%
     janitor::clean_names() %>%
     dplyr::mutate(date = as.Date(date, "%d %b %Y"),
                   value = as.numeric(value))
