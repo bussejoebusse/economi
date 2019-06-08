@@ -2,7 +2,9 @@
 
 export("%>%")
 export(get_boe)
+export(get_boe_correlation)
+export(get_boe_error_bounds)
+export(get_boe_usd_forward)
 export(get_ons)
-export(get_usd_forward)
 importFrom(lubridate,"%m+%")
 importFrom(magrittr,"%>%")

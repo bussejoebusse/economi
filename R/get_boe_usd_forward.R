@@ -1,6 +1,6 @@
-#' Fetch BoE timeseries data
+#' Fetch BoE US Dollar forward exchange rate data
 #'
-#' This function fetches exchange rate data from the Bank of England (BoE) database, see \url{https://www.bankofengland.co.uk/boeapps/database/}
+#' This function fetches US Dollar forward exchange rate data from the Bank of England (BoE) database, see \url{https://www.bankofengland.co.uk/boeapps/database/}, and uses this data to forecast future US Dollar exchange rates
 #' @importFrom magrittr %>%
 #' @importFrom lubridate %m+%
 #' @param date date value, when the forwards are from, default is today's date
@@ -11,10 +11,10 @@
 #' get_usd_forward(date = as.Date("2005-01-01"))
 #' }
 #' @export
-#' get_usd_forward
+#' get_boe_usd_forward
 
 
-get_usd_forward <- function(date = Sys.Date(), three_point = TRUE){
+get_boe_usd_forward <- function(date = Sys.Date(), three_point = TRUE){
 
   forward_lookup <- tibble::tibble(code = c("1", "3", "6", "Y"),
                            forward_length = c(1, 3, 6, 12))
@@ -48,6 +48,31 @@ get_usd_forward <- function(date = Sys.Date(), three_point = TRUE){
                   forward_month = stringr::str_sub(
                     date %m+% months(forward_length), 1, 7),
                   value = zoo::na.approx(value)) %>%
-    dplyr::select(date, forward_month, value)
+    dplyr::select(date, forward_month, forward_length, value)
+
+  if(three_point == FALSE){
+
+    interpolated_forwards
+
+  }else{
+
+    error_bounds_raw <- get_boe_error_bounds("xumauss")
+
+    error_bounds <- error_bounds_raw %>%
+      dplyr::bind_rows(tibble::tibble(
+        steps = dplyr::pull(dplyr::distinct(error_bounds_raw, steps), steps),
+        type = rep("Most Likely", max(error_bounds_raw$steps)),
+        perc_change = rep(0, max(error_bounds_raw$steps)))) %>%
+      dplyr::rename(forward_length = steps)
+
+    three_point_estimate <- interpolated_forwards %>%
+      dplyr::left_join(error_bounds, by = "forward_length") %>%
+      dplyr::mutate(value = value * ((100 + perc_change) / 100)) %>%
+      dplyr::select(date, forward_month, forward_length, type, value) %>%
+      dplyr::arrange(desc(type), forward_length)
+
+    three_point_estimate
+
+  }
 
 }
