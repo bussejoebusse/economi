@@ -14,31 +14,21 @@
 #' get_boe
 
 get_boe <- function(series, from = as.Date("1975-01-01"), to = Sys.Date()){
-  
+
   if(class(from) != "Date" | class(to) != "Date")
     stop("to and from must be dates", call. = FALSE)
-  
-  url <- paste0("http://www.bankofengland.co.uk/boeapps/iadb/fromshowcolumns.asp?csv.x=yes", 
+
+  url <- paste0("http://www.bankofengland.co.uk/boeapps/iadb/fromshowcolumns.asp?csv.x=yes",
                 "&Datefrom=", format.Date(from, "%d/%b/%Y"),
                 "&Dateto=", format.Date(to, "%d/%b/%Y"),
                 "&SeriesCodes=", paste(toupper(series), collapse = ","),
                 "&CSVF=CN&UsingCodes=Y&VPD=Y&VFD=N")
-  
-  temp <- tempfile()
-  
-  utils::download.file(url, destfile = temp, quiet = T)
-  
-  if(ncol(suppressMessages(suppressWarnings(readr::read_csv(temp)))) <= 1)
-    stop("unkwown series", call. = FALSE)
-  
-  output <- readr::read_csv(temp, col_types = readr::cols()) %>% 
-    janitor::clean_names() %>% 
+
+  output <- readr::read_csv(url) %>%
+    janitor::clean_names() %>%
     dplyr::mutate(date = as.Date(date, "%d %b %Y"),
                   value = as.numeric(value))
-  
-  unlink(temp)
-  
-  output
-  
-}
 
+  output
+
+}
